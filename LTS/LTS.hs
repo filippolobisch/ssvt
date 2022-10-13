@@ -37,7 +37,7 @@ ltsMain = do
     putStrLn "\nqtraces coffeeModel1:"
     print $ take 20 $ qtraces coffeeModel1
     putStrLn "\nstraces coffeeModel1:"
-    print $ take 20 $ straces $ pDelta' coffeeModel1
+    print $ take 20 $ straces coffeeModel1
 
     putStrLn
         (  "\nComparing Simon's coffeeModel1 straces with my straces function: "

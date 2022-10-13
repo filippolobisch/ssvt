@@ -27,24 +27,11 @@ transitionsDelta (states, li, lu, transitions, q) =
     , quiescentCheck (states, li, lu, transitions, q) s
     ]
 
-
--- pDelta :: IOLTS -> IOLTS
--- pDelta (q, li, lu, ts, q0) = (q, li, lu `union` [delta], transitions, q0)
---   where
---     tDelta      = transitionsDelta (q, li, lu, ts, q0)
---     transitions = sortBy deltaSorter $ sort $ ts `union` tDelta
-
--- deltaSorter :: (Ord a, Ord b, Ord c) => (a, b, c) -> (a, b, c) -> Ordering
--- deltaSorter (a1, b1, c1) (a2, b2, c2) | c1 > c2   = GT
---                                       | c1 == c2  = EQ
---                                       | otherwise = LT
-
-
 -- This version is the same as pDelta however the T u TDelta is not sorted.
 -- This means that the delta transitions are at the end of the transitions and therefore are returned after the other transitions.
-pDelta' :: IOLTS -> IOLTS
-pDelta' (q, li, lu, ts, q0) =
-    (q, li, lu `union` [delta], ts `union` tDelta, q0)
+-- Therefore when checking the result of straces with simon's result (taken from Slack) it == True despite the items being in different order.
+pDelta :: IOLTS -> IOLTS
+pDelta (q, li, lu, ts, q0) = (q, li, lu `union` [delta], ts `union` tDelta, q0)
     where tDelta = transitionsDelta (q, li, lu, ts, q0)
 
 lDelta :: IOLTS -> [Label]
@@ -63,4 +50,4 @@ straces' iolts ((state, path) : xs) = path : straces' iolts queue
 
 straces :: IOLTS -> [Trace]
 straces iolts = straces' iolts [(initState, [])]
-    where (s, li, lu, transitions, initState) = pDelta' iolts
+    where (s, li, lu, transitions, initState) = pDelta iolts
