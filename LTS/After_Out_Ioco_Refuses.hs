@@ -35,8 +35,13 @@ after (_, _, _, ts, initState) trace = sort $ after' ts trace [(initState, [])]
 -- ---------------------------------
 out :: IOLTS -> Trace -> [Label]
 out iolts trace =
-    [ l | s <- iolts `after` trace, (f, l, t) <- transitions, s == f ]
-    where (_, _, _, transitions, _) = iolts
+    [ l
+    | s         <- iolts `after` trace
+    , (f, l, t) <- transitions
+    , s == f
+    , l `elem` lu
+    ]
+    where (_, _, lu, transitions, _) = iolts
 
 infix 1 `ioco`
 ioco :: IOLTS -> IOLTS -> Bool
