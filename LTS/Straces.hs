@@ -51,3 +51,28 @@ straces' iolts ((state, path) : xs) = path : straces' iolts queue
 straces :: IOLTS -> [Trace]
 straces iolts = straces' iolts [(initState, [])]
     where (s, li, lu, transitions, initState) = pDelta iolts
+
+
+-- Uses out previously defined traces function and compares the result with the IOLTS state array.
+-- We use nub to remove any duplicate states that may be reached via different paths.
+-- We also sort it to ensure the states are in their correct order (based on their int values).
+-- If the arrays differ then it there is an unreachable state, however, if the are equal then all states are reachable.
+hasUnreachableStates :: IOLTS -> Bool
+hasUnreachableStates (q, li, lu, transitions, q0) =
+    sort (nub [ s | trace <- traces iolts, s <- iolts `after` trace ]) /= q
+    where iolts = (q, li, lu, transitions, q0)
+
+-- Example Model with no unreachable states. All states are reachable.
+modelNoUnreachableStates :: IOLTS
+modelNoUnreachableStates =
+    ([1 .. 2], ["?coin"], ["!coffee"], [(1, "?coin", 2)], 1)
+
+-- Example Model with unreachable states (state 4)
+modelUnreachableStates :: IOLTS
+modelUnreachableStates =
+    ( [1, 2, 3, 4]
+    , ["?coin"]
+    , ["!coffee"]
+    , [(1, "?coin", 2), (2, "!coffee", 3)]
+    , 1
+    )
