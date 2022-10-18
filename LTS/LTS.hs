@@ -2,6 +2,7 @@ module LTS where
 
 import           After_Out_Ioco_Refuses
 import           Data.List
+import           Generators
 import           LTS_Types
 import           Qtraces
 import           Straces
@@ -25,11 +26,8 @@ ltsMain = do
         ++ show (coffeeImpl1 `ioco` coffeeModel1)
         )
     putStrLn
-        ("coffeeImplSimple after \"coin\" refuses \"coin\": " ++ show
-            (refuses coffeeImplSimple
-                     (convertLTStoIOLTS coffeeImplSimple `after` ["coin"])
-                     ["coin"]
-            )
+        ("coffeeImpl1 after \"coin\" refuses \"coin\": " ++ show
+            (refuses coffeeImplSimple (coffeeImpl1 `after` ["coin"]) ["coin"])
         )
 
     putStrLn "\ntraces coffeeModel1:"
@@ -47,3 +45,4 @@ ltsMain = do
                )
         )
 
+    verboseCheck $ forAll ltsGenerator propLTSGenTest
