@@ -14,6 +14,7 @@ infixr 5 @@
 (@@) :: Eq a => Rel a -> Rel a -> Rel a
 r @@ s = nub [ (x, z) | (x, y) <- r, (w, z) <- s, y == w ]
 
+-- Taken from Lab4 of last year from my groups submission.
 setIntersection :: Ord a => Set a -> Set a -> Set a
 setIntersection (Set []) set2 = set2
 setIntersection (Set (x : xs)) set2 =
@@ -26,6 +27,8 @@ setUnion (Set (x : xs)) set2 = insertSet x (setUnion (Set xs) set2)
 setDifference :: Ord a => Set a -> Set a -> Set a
 setDifference (Set []      ) set2 = set2
 setDifference (Set (x : xs)) set2 = insertSet x (setDifference (Set xs) set2)
+-- end methods from Lab4
+
 
 
 -- SymClos
