@@ -48,7 +48,7 @@ identity x = nub $ [ (v, v) | v <- x ]
 inverse :: Eq a => Rel a -> Rel a
 inverse r = nub $ [ (b, a) | (a, b) <- r ] -- could also be done as: map swap
 
--- Serial
+-- Serial (taken from lab submission)
 -- Function that checks whether a given relation is serial for the given domain.
 -- For a relation to be serial every point x from the domain there must be a y,
 -- where (x,y) is present in the relation.
