@@ -1,6 +1,10 @@
 module LTS_Types where
 import           Data.List
 
+-- ---------------------------------
+-- LTS Lab Source
+-- ---------------------------------
+
 -- Types
 type State = Integer
 type Label = String
@@ -216,9 +220,6 @@ createIOLTS transitions =
       )
       where (states, labels, transitionSet, initState) = createLTS transitions
 
-convertLTStoIOLTS :: LTS -> IOLTS
-convertLTStoIOLTS (_, _, transitions, q) = createIOLTS transitions
-
 makeLabel :: Label -> Label
 makeLabel x | fst == '?' || fst == '!' = tail x
             | otherwise                = x
@@ -329,24 +330,12 @@ elevator =
       , 1
       )
 
-elevI :: IOLTS
-elevI = convertLTStoIOLTS elevator
-
-tester :: IOLTS
-tester = createIOLTS
-      [ (0, "?but", 1)
-      , (1, tau   , 2)
-      , (1, "!liq", 3)
-      , (3, "?but", 4)
-      , (2, tau   , 5)
-      , (5, "!liq", 6)
-      ]
-
 doorImpl1IOLTS :: IOLTS
 doorImpl1IOLTS = createIOLTS
       [(0, "?close", 1), (1, "?open", 0), (1, "?lock", 2), (2, "?unlock", 1)]
 
 
+-- Simon result copied from his slack example message.
 simonResult =
       [ []
       , ["delta"]
@@ -369,3 +358,7 @@ simonResult =
       , ["delta", "coin", "tea", "delta"]
       , ["coin", "coffee", "delta", "delta"]
       ]
+
+-- ---------------------------------
+-- End LTS Lab Source
+-- ---------------------------------
