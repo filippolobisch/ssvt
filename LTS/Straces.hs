@@ -13,12 +13,11 @@ import           Traces
 -- ---------------------------------
 
 possibleSuspensionStates :: IOLTS -> State -> [(Label, State)]
-possibleSuspensionStates iolts state | isQuiescent = (delta, state) : pStates
-                                     | otherwise   = pStates
-  where
-    (_, _, _, transitions, _) = iolts
-    pStates                   = possibleStates transitions state
-    isQuiescent               = quiescentCheck iolts state
+possibleSuspensionStates iolts state =
+    let (_, _, _, transitions, _) = iolts
+        pStates                   = possibleStates transitions state
+        isQuiescent               = quiescentCheck iolts state
+    in  if isQuiescent then (delta, state) : pStates else pStates
 
 transitionsDelta :: IOLTS -> [LabeledTransition]
 transitionsDelta (states, li, lu, transitions, q) =
@@ -38,22 +37,22 @@ lDelta :: IOLTS -> [Label]
 lDelta (_, li, lu, _, _) = (li ++ lu) `union` [delta]
 
 straces' :: IOLTS -> [(State, [Label])] -> [Trace]
-straces' iolts []                   = []
-straces' iolts ((state, path) : xs) = path : straces' iolts queue
-  where
-    (_, _, _, transitions, q) = iolts
-    queue =
-        xs
-            ++ [ (snd x, path ++ [fst x])
-               | x <- possibleSuspensionStates iolts state
-               ]
+straces' iolts [] = []
+straces' iolts ((state, path) : xs) =
+    let (_, _, _, transitions, q) = iolts
+        queue =
+            xs
+                ++ [ (snd x, path ++ [fst x])
+                   | x <- possibleSuspensionStates iolts state
+                   ]
+    in  path : straces' iolts queue
 
 straces :: IOLTS -> [Trace]
 straces iolts = straces' iolts [(initState, [])]
     where (s, li, lu, transitions, initState) = pDelta iolts
 
 
--- Uses out previously defined traces function and compares the result with the IOLTS state array.
+-- Uses our previously defined traces function and compares the result with the IOLTS state array.
 -- We use nub to remove any duplicate states that may be reached via different paths.
 -- We also sort it to ensure the states are in their correct order (based on their int values).
 -- If the arrays differ then it there is an unreachable state, however, if the are equal then all states are reachable.

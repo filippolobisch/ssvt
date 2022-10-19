@@ -16,15 +16,15 @@ import           Traces
 after' :: [LabeledTransition] -> Trace -> [(State, Trace)] -> [State]
 after' transitions trace [] = []
 after' transitions trace ((state, path) : xs) =
-    [ state | trace == filter (/= tau) path ] ++ after' transitions trace queue
-  where
-    pStates = possibleStates transitions state
-    queue =
-        xs
-            ++ [ (t, path ++ [l])
-               | (l, t) <- pStates
-               , filter (/= tau) (path ++ [l]) `isInfixOf` trace
-               ]
+    let pStates = possibleStates transitions state
+        queue =
+            xs
+                ++ [ (t, path ++ [l])
+                   | (l, t) <- pStates
+                   , filter (/= tau) (path ++ [l]) `isInfixOf` trace
+                   ]
+    in  [ state | trace == filter (/= tau) path ]
+        ++ after' transitions trace queue
 
 infix 1 `after`
 after :: IOLTS -> Trace -> [State]
