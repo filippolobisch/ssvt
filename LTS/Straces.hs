@@ -12,45 +12,38 @@ import           Traces
 -- Straces
 -- ---------------------------------
 
-possibleSuspensionStates :: IOLTS -> State -> [(Label, State)]
-possibleSuspensionStates iolts state =
-    let (_, _, _, transitions, _) = iolts
-        pStates                   = possibleStates transitions state
-        isQuiescent               = quiescentCheck iolts state
-    in  if isQuiescent then (delta, state) : pStates else pStates
+-- Method that gets all the possible transitions from a given state.
+possibleTransitons :: [LabeledTransition] -> State -> [LabeledTransition]
+possibleTransitons transitions state =
+    filter (\(f, l, t) -> f == state) transitions
 
+-- This method loops over all the transitions, when it finds a suspension state (quiescentCheck based on tretmans paper)
+-- it adds a delta transition and appends the remainder of the the possibleTransitions.
+-- I chose to do it this way because like this we get the delta transition ahead of the other transitions from that state (I found it easier to do it this way instead of using sorts).
 transitionsDelta :: IOLTS -> [LabeledTransition]
-transitionsDelta (states, li, lu, transitions, q) =
-    [ (s, delta, s)
-    | s <- states
-    , quiescentCheck (states, li, lu, transitions, q) s
-    ]
+transitionsDelta (states, li, lu, transitions, q) = concatMap
+    (\s -> if quiescentCheck iolts s
+        then (s, delta, s) : possibleTransitons transitions s
+        else possibleTransitons transitions s
+    )
+    states
+    where iolts = (states, li, lu, transitions, q)
 
--- This version is the same as pDelta however the T u TDelta is not sorted.
--- This means that the delta transitions are at the end of the transitions and therefore are returned after the other transitions.
--- Therefore when checking the result of straces with simon's result (taken from Slack) it == True despite the items being in different order.
+-- The main function to add the delta label to both output labels and the delta transitions.
+-- Creates a new IOLTS according to tretmans definition.
 pDelta :: IOLTS -> IOLTS
-pDelta (q, li, lu, ts, q0) = (q, li, lu `union` [delta], ts `union` tDelta, q0)
+pDelta (q, li, lu, ts, q0) = (q, li, lu `union` [delta], tDelta, q0)
     where tDelta = transitionsDelta (q, li, lu, ts, q0)
 
+-- The input and output labels with the delta label.
+-- Following tretmans definition of L*delta.
 lDelta :: IOLTS -> [Label]
 lDelta (_, li, lu, _, _) = (li ++ lu) `union` [delta]
 
-straces' :: IOLTS -> [(State, [Label])] -> [Trace]
-straces' iolts [] = []
-straces' iolts ((state, path) : xs) =
-    let (_, _, _, transitions, q) = iolts
-        queue =
-            xs
-                ++ [ (snd x, path ++ [fst x])
-                   | x <- possibleSuspensionStates iolts state
-                   ]
-    in  path : straces' iolts queue
-
+-- The main straces function. Utilises the traces function that I built in the other file in preparation for the exam.
 straces :: IOLTS -> [Trace]
-straces iolts = straces' iolts [(initState, [])]
-    where (s, li, lu, transitions, initState) = pDelta iolts
-
+straces iolts =
+    let deltaIOLTS = pDelta iolts in [ trace | trace <- traces deltaIOLTS ]
 
 -- Uses our previously defined traces function and compares the result with the IOLTS state array.
 -- We use nub to remove any duplicate states that may be reached via different paths.

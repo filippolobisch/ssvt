@@ -46,4 +46,4 @@ ltsMain = do
         )
 
     -- verboseCheck $ forAll ltsGenerator propLTSGenTest
-    verboseCheck $ forAll ioltsGenerator propIOLTSGenTest
+    -- verboseCheck $ forAll ioltsGenerator propIOLTSGenTest
