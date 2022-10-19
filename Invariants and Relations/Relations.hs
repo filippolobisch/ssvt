@@ -43,7 +43,7 @@ range rel = nub $ map snd rel
 
 
 identity :: Eq a => [a] -> Rel a
-identity x = nub $ [ (v, v) | v <- x ]
+identity a = nub $ [ (x, x) | x <- a ]
 
 inverse :: Eq a => Rel a -> Rel a
 inverse r = nub $ [ (b, a) | (a, b) <- r ] -- could also be done as: map swap
