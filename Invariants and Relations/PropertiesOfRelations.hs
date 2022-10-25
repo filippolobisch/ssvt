@@ -3,30 +3,58 @@ module PropertiesOfRelations where
 import           Data.List
 import           Data.Tuple
 import           Relations
+-- import           SetOrd
 
-reflexive :: Eq a => Rel a -> Bool
-reflexive = any (uncurry (==))
 
-irreflexive :: Eq a => Rel a -> Bool
-irreflexive rel = not $ reflexive rel
+-- Georgia's helper
+isTransitive :: Eq a => Rel a -> Bool
+isTransitive x = and [ (a, d) `elem` x | (a, b) <- x, (c, d) <- x, b == c ]
 
-symmetric :: Eq a => Rel a -> Bool
-symmetric r = all (\a -> swap a `elem` r) r
+isReflexive :: Eq a => Rel a -> [a] -> Bool
+isReflexive r = all (\x -> (x, x) `elem` r)
 
-asymmetric :: Eq a => Rel a -> Bool
-asymmetric r = all (\a -> swap a `notElem` r) r -- can be simplified to: not $ symmetric r
+isAntisymmetric :: Eq a => Rel a -> Bool
+isAntisymmetric r = and [ (y, x) `notElem` r || x == y | (x, y) <- r ]
+-- End Georgia's helper
 
-antisymmetric :: Eq a => Rel a -> Bool
-antisymmetric r = all (\(a, b) -> (b, a) `elem` r --> a == b) r
+isIrreflexive :: Eq a => Rel a -> [a] -> Bool
+isIrreflexive r a = not $ all (\x -> (x, x) `elem` r) a
 
-transitive :: Eq a => Rel a -> Bool
-transitive r = all (`elem` r) (r @@ r)
+isSymmetric :: Eq a => Rel a -> Bool
+isSymmetric r = and [ (y, x) `elem` r | (x, y) <- r ]
+-- isSymmetric r = all (\(x, y) -> (y, x) `elem` r) r
 
-intransitive :: Eq a => Rel a -> Bool
-intransitive r = all (`notElem` r) (r @@ r) -- can be simplified to: not $ transitive r
+isAsymmetric :: Eq a => Rel a -> Bool
+isAsymmetric r = and [ (y, x) `notElem` r | (x, y) <- r ]
+
+isIntransitive :: Eq a => Rel a -> Bool
+isIntransitive r =
+    and [ (a, d) `notElem` r | (a, b) <- r, (c, d) <- r, b == c ]
 
 linear :: Eq a => Rel a -> Bool
 linear r = all (\(x, y) -> (x, y) `elem` r || (y, x) `elem` r || x == y) r
 -- linear r = and
 --     [ (x, y) `elem` r || (y, x) `elem` r || x == y | x <- dom, y <- dom ]
 --     where dom = domain r
+
+
+-- Haskell road: A relation R on A is a pre-order (or quasi-order) if R is transitive and reflexive.
+quasiOrder, preOrder :: Eq a => Rel a -> [a] -> Bool
+quasiOrder r a = isTransitive r && isReflexive r a
+preOrder r a = isTransitive r && isReflexive r a
+
+-- Haskell road: A relation R on A is a strict partial order if R is transitive and irreflexive.
+strictPartialOrder :: Eq a => Rel a -> [a] -> Bool
+strictPartialOrder r a = isTransitive r && isIrreflexive r a -- && isAsymmetric r && isAntisymmetric r
+
+-- Haskell road: A relation R on A is a partial order if R is transitive, reflexive and antisymmetric.
+partialOrder :: Eq a => Rel a -> [a] -> Bool
+partialOrder r a = isTransitive r && isReflexive r a && isAntisymmetric r
+
+-- Haskell road: A partial order that is also linear is called a total order.
+totalOrder :: Eq a => Rel a -> [a] -> Bool
+totalOrder r a = partialOrder r a && linear r
+
+equivalence :: Eq a => Rel a -> [a] -> Bool
+equivalence r a = isReflexive r a && isSymmetric r && isTransitive r
+
