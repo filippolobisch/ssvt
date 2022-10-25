@@ -14,6 +14,10 @@ possibleStates transitions state =
   map (\(_, label, toState) -> (label, toState))
     $ filter (\(fromState, _, _) -> fromState == state) transitions
 
+possibleStates' :: [LabeledTransition] -> State -> [(Label, State)]
+possibleStates' transitions state =
+  [ (l, t) | (f, l, t) <- transitions, f == state ]
+
 checkTraceInLabels :: [Label] -> Trace -> Bool
 checkTraceInLabels labels trace = trace `isInfixOf` labels
 

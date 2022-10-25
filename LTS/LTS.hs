@@ -1,6 +1,6 @@
 module LTS where
 
-import           After_Out_Ioco_Refuses
+import           After_Refuses
 import           Data.List
 import           Generators
 import           LTS_Types
@@ -20,7 +20,9 @@ ltsMain = do
         ++ show (coffeeModel1 `after` ["coin"])
         )
     putStrLn
-        ("coffeeModel1 out [\"coin\"]: " ++ show (coffeeModel1 `out` ["coin"]))
+        (  "coffeeModel1 out [\"coin\"]: "
+        ++ show (coffeeModel1 `outAfter` ["coin"])
+        )
     putStrLn
         (  "coffeeImpl1 ioco coffeeModel1: "
         ++ show (coffeeImpl1 `ioco` coffeeModel1)

@@ -362,3 +362,10 @@ simonResult =
 -- ---------------------------------
 -- End LTS Lab Source
 -- ---------------------------------
+
+
+candyImpl :: IOLTS
+candyImpl = createIOLTS [(1, "?btn", 2), (2, "!choc", 3), (2, "!lic", 4)]
+
+candyModel :: IOLTS
+candyModel = createIOLTS [(1, "?btn", 2), (2, tau, 3), (2, "!lic", 4)]

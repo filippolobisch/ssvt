@@ -1,4 +1,4 @@
-module After_Out_Ioco_Refuses where
+module After_Refuses where
 
 import           Data.List
 import           LTS_Types
@@ -29,25 +29,6 @@ after' transitions trace ((state, path) : xs) =
 infix 1 `after`
 after :: IOLTS -> Trace -> [State]
 after (_, _, _, ts, initState) trace = sort $ after' ts trace [(initState, [])]
-
--- ---------------------------------
--- Out and IOCO
--- ---------------------------------
-out :: IOLTS -> Trace -> [Label]
-out iolts trace =
-    [ l
-    | s         <- iolts `after` trace
-    , (f, l, t) <- transitions
-    , s == f
-    , l `elem` lu
-    ]
-    where (_, _, lu, transitions, _) = iolts
-
-infix 1 `ioco`
-ioco :: IOLTS -> IOLTS -> Bool
-ioco implementation model =
-    all (\trace -> out implementation trace `isInfixOf` out model trace)
-        $ traces model
 
 
 -- ---------------------------------
